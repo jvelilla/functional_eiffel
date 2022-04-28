@@ -17,15 +17,15 @@ feature {NONE} -- Initialization
 	make
 			-- Run application.
 		local
-			stream: FUNCTION_STREAM [INTEGER]
-			discount_price: INTEGER
+			stream: GENERAL_STREAM [INTEGER]
+			discount_price: OPTIONAL [INTEGER]
 		do
 			create stream.make (prices)
 			discount_price := stream.filter (agent greater_than_20)
 				  					.map (agent multiply)
 				  					.reduce (agent add)
 
-			print ("Total of discounted prices:" + discount_price.out)
+			discount_price.if_present (agent (p: INTEGER) do print ("Total of discounted prices:" + p.out) end)
 		end
 
 

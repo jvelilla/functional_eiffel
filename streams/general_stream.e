@@ -2,7 +2,12 @@ note
 	description: "[
 			General Class implementing map reduce pattern
 			Note: the current implementation does not implement
-			Splitting, Accumulator, everything is sequential.
+			As a proof of concept, every operation loops through all the elements of the streams.
+			TODO: Implement the Pipeline desing pattern, so we can chain different operations, until
+			we reach a terminal operation. So all the intermediate opertions are delayed until we 
+			invoke the terminal operation (Lazy evaluation.)
+
+
 		]"
 	date: "$Date$"
 	revision: "$Revision$"
@@ -200,7 +205,7 @@ feature -- Map
 			create Result.make (l_result)
 		end
 
-	flat_map(a_function: FUNCTION [T, GENERAL_STREAM[T]]): GENERAL_STREAM [T]
+	flat_map (a_function: FUNCTION [T, GENERAL_STREAM[T]]): GENERAL_STREAM [T]
 			-- Returns a function stream consisting of the results of applying the given
 			-- function `a_function` to the items of this stream.
 		local
