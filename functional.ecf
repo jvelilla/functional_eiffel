@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-22-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-22-0 http://www.eiffel.com/developers/xml/configuration-1-22-0.xsd" name="functional" uuid="8A075F3C-7EB8-4BED-A59D-C30F9CB7E2C2">
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-23-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-23-0 http://www.eiffel.com/developers/xml/configuration-1-23-0.xsd" name="functional" uuid="8A075F3C-7EB8-4BED-A59D-C30F9CB7E2C2">
 	<target name="abstract">
 		<file_rule>
 			<exclude>/CVS$</exclude>
@@ -14,8 +14,7 @@
 		<setting name="total_order_on_reals" value="true"/>
 		<setting name="dead_code_removal" value="feature"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf">
-			<option warning="none">
-			</option>
+			<option warning="none"/>
 			<class_option class="FUNCTION">
 				<warning name="obsolete_feature" value="all"/>
 			</class_option>
@@ -36,7 +35,10 @@
 	<target name="collection" extends="abstract">
 		<root class="APPLICATION" feature="make"/>
 		<setting name="total_order_on_reals" value="true"/>
+		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
 		<cluster name="collection" location=".\collection\" recursive="true"/>
+		<cluster name="enums" location=".\enums\" recursive="true"/>
+		<cluster name="tests" location=".\testing\" recursive="true"/>
 	</target>
 	<target name="strings" extends="abstract">
 		<root class="APPLICATION" feature="make"/>
