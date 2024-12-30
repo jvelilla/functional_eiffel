@@ -1273,10 +1273,10 @@ feature -- Test routines
 			l_letters: ARRAYED_LIST [CHARACTER]
 			l_words: ARRAYED_LIST [STRING]
 			l_iterables: ARRAYED_LIST [ITERABLE [ANY]]
-			l_result: LIST [ITERABLE[ANY]]
+			l_result: LIST [ITERABLE [ANY]]
 			l_enum: ENUM [ANY]
-			l_zipped_items: ITERABLE[ANY]
-			l_zipped_enum: ENUM[ANY]
+			l_zipped_items: ITERABLE [ANY]
+			l_zipped_enum: ENUM [ANY]
 		do
 				-- Create first enumerable (1,2,3)
 			create l_numbers.make (3)
@@ -1342,9 +1342,9 @@ feature -- Test routines
 		local
 			l_enum: ENUM [INTEGER]
 			l_numbers: ARRAYED_LIST [INTEGER]
-			l_result: LIST [ENUM[INTEGER]]
+			l_result: LIST [ENUM [INTEGER]]
 		do
-			-- Test case similar to example: [1, 2, 2, 3, 4, 4, 6, 7, 7]
+				-- Test case similar to example: [1, 2, 2, 3, 4, 4, 6, 7, 7]
 			create l_numbers.make (9)
 			l_numbers.extend (1)
 			l_numbers.extend (2)
@@ -1360,9 +1360,9 @@ feature -- Test routines
 
 				-- Chunk by odd/even (similar to rem(&1, 2) == 1)
 			l_result := l_enum.chunk_by (agent (x: INTEGER): BOOLEAN
-					do
-						Result := (x \\ 2 = 1)
-					end).to_list
+						do
+							Result := (x \\ 2 = 1)
+						end).to_list
 
 				-- Verify number of chunks
 			assert ("correct number of chunks", l_result.count = 5)
@@ -1397,54 +1397,258 @@ feature -- Test routines
 		local
 			l_enum: ENUM [INTEGER]
 			l_numbers: ARRAYED_LIST [INTEGER]
-			l_result: LIST [ENUM[INTEGER]]
+			l_result: LIST [ENUM [INTEGER]]
 			l_leftover: ARRAYED_LIST [INTEGER]
 		do
 				-- Test basic chunking (count = step)
-			create l_numbers.make_from_array (<<1,2,3,4,5,6>>)
+			create l_numbers.make_from_array (<<1, 2, 3, 4, 5, 6>>)
 			create l_enum.make (l_numbers)
-			l_result := l_enum.chunk_every_default (2).to_list
+			l_result := l_enum.chunk_every(2, 2, Void).to_list
 
 			assert ("basic chunking count", l_result.count = 3)
-			assert_arrays_equal ("first chunk correct", <<1,2>>, l_result.first.to_array)
-			assert_arrays_equal ("last chunk correct", <<5,6>>, l_result.last.to_array)
+			assert_arrays_equal ("first chunk correct", <<1, 2>>, l_result.first.to_array)
+			assert_arrays_equal ("last chunk correct", <<5, 6>>, l_result.last.to_array)
+
+			l_result := l_enum.chunk_every(2, 3, Void).to_list
+			assert ("basic chunking count", l_result.count = 2)
+			assert_arrays_equal ("first chunk correct", <<1, 2>>, l_result.first.to_array)
+			assert_arrays_equal ("last chunk correct", <<4, 5>>, l_result.last.to_array)
+
 
 				-- Test with step different from count
-			create l_numbers.make_from_array (<<1,2,3,4,5,6>>)
+			create l_numbers.make_from_array (<<1, 2, 3, 4, 5, 6>>)
 			create l_enum.make (l_numbers)
 			l_result := l_enum.chunk_every (3, 2, Void).to_list
 
 			assert ("overlapping chunks count", l_result.count = 3)
-			assert_arrays_equal ("first chunk correct", <<1,2,3>>, l_result.first.to_array)
-			assert_arrays_equal ("last chunk correct", <<5,6>>, l_result.last.to_array)
+			assert_arrays_equal ("first chunk correct", <<1, 2, 3>>, l_result.first.to_array)
+			assert_arrays_equal ("last chunk correct", <<5, 6>>, l_result.last.to_array)
+
+			create l_numbers.make_from_array (<<1, 2, 3, 4, 5, 6>>)
+			create l_enum.make (l_numbers)
+			l_result := l_enum.chunk_every_discard (3, 2).to_list
+
+			assert ("overlapping chunks count", l_result.count = 2)
+			assert_arrays_equal ("first chunk correct", <<1, 2, 3>>, l_result.first.to_array)
+			assert_arrays_equal ("last chunk correct", <<3, 4, 5>>, l_result.last.to_array)
+
 
 				-- Test with leftover
-			create l_numbers.make_from_array (<<1,2,3,4>>)
+			create l_numbers.make_from_array (<<1, 2, 3, 4>>)
 			create l_leftover.make_from_array (<<7>>)
 			create l_enum.make (l_numbers)
 			l_result := l_enum.chunk_every (3, 3, l_leftover).to_list
 
 			assert ("chunks with leftover count", l_result.count = 2)
-			assert_arrays_equal ("first chunk correct", <<1,2,3>>, l_result.first.to_array)
-			assert_arrays_equal ("last chunk with leftover", <<4,7>>, l_result.last.to_array)
+			assert_arrays_equal ("first chunk correct", <<1, 2, 3>>, l_result.first.to_array)
+			assert_arrays_equal ("last chunk with leftover", <<4, 7>>, l_result.last.to_array)
 
 				-- Test with discard
-			create l_numbers.make_from_array (<<1,2,3,4,5,6>>)
+			create l_numbers.make_from_array (<<1, 2, 3, 4, 5, 6>>)
 			create l_enum.make (l_numbers)
 			l_result := l_enum.chunk_every_discard (3, 2).to_list
 
 			assert ("discard incomplete count", l_result.count = 2)
-			assert_arrays_equal ("first chunk correct", <<1,2,3>>, l_result.first.to_array)
-			assert_arrays_equal ("second chunk correct", <<3,4,5>>, l_result.i_th(2).to_array)
+			assert_arrays_equal ("first chunk correct", <<1, 2, 3>>, l_result.first.to_array)
+			assert_arrays_equal ("second chunk correct", <<3, 4, 5>>, l_result.i_th (2).to_array)
 
 				-- Test with larger count than elements
-			create l_numbers.make_from_array (<<1,2,3,4>>)
+			create l_numbers.make_from_array (<<1, 2, 3, 4>>)
 			create l_enum.make (l_numbers)
 			l_result := l_enum.chunk_every_default (10).to_list
 
 			assert ("single chunk for small list", l_result.count = 1)
-			assert_arrays_equal ("all elements in chunk", <<1,2,3,4>>, l_result.first.to_array)
+			assert_arrays_equal ("all elements in chunk", <<1, 2, 3, 4>>, l_result.first.to_array)
 		end
+
+	test_uniq
+			-- Test removing duplicate elements
+		local
+			l_enum: ENUM [INTEGER]
+			l_numbers: ARRAYED_LIST [INTEGER]
+			l_result: ARRAY [INTEGER]
+		do
+				-- Test with duplicates
+			create l_numbers.make_from_array (<<1, 2, 3, 3, 2, 1>>)
+			create l_enum.make (l_numbers)
+			l_result := l_enum.uniq.to_array
+
+			assert ("correct number of unique elements", l_result.count = 3)
+			assert_arrays_equal ("unique elements in order", <<1, 2, 3>>, l_result)
+
+				-- Test with no duplicates
+			create l_numbers.make_from_array (<<1, 2, 3>>)
+			create l_enum.make (l_numbers)
+			l_result := l_enum.uniq.to_array
+
+			assert ("same count when no duplicates", l_result.count = 3)
+			assert_arrays_equal ("same elements when no duplicates", <<1, 2, 3>>, l_result)
+
+				-- Test with all duplicates
+			create l_numbers.make_from_array (<<1, 1, 1>>)
+			create l_enum.make (l_numbers)
+			l_result := l_enum.uniq.to_array
+
+			assert ("single element when all duplicates", l_result.count = 1)
+			assert_arrays_equal ("single unique element", <<1>>, l_result)
+
+				-- Test with empty list
+			create l_numbers.make (0)
+			create l_enum.make (l_numbers)
+			l_result := l_enum.uniq.to_array
+
+			assert ("empty result for empty input", l_result.count = 0)
+		end
+
+
+	test_uniq_by
+            -- Test removing duplicates based on function result
+        local
+            l_enum: ENUM [TUPLE [x: INTEGER; y: CHARACTER]]
+            l_tuples: ARRAYED_LIST [TUPLE [x: INTEGER; y: CHARACTER]]
+            l_result: ARRAY [TUPLE [x: INTEGER; y: CHARACTER]]
+        do
+           	 -- Test with tuples, keeping first occurrence of each x value
+            create l_tuples.make (3)
+            l_tuples.extend ([1, 'x'])
+            l_tuples.extend ([2, 'y'])
+            l_tuples.extend ([1, 'z'])
+
+            create l_enum.make (l_tuples)
+            l_result := l_enum.uniq_by (agent (t: TUPLE [x: INTEGER; y: CHARACTER]): INTEGER
+                do
+                    Result := t.x
+                end).to_array
+
+            	-- Should keep {1, 'x'} and {2, 'y'}, dropping {1, 'z'}
+            assert ("correct number of unique elements", l_result.count = 2)
+            assert ("first element kept", l_result[1].x = 1 and l_result[1].y = 'x')
+            assert ("second element kept", l_result[2].x = 2 and l_result[2].y = 'y')
+
+            	-- Test with tuples, keeping first occurrence of each y value
+            create l_tuples.make (3)
+            l_tuples.extend ([1, 'a'])
+            l_tuples.extend ([2, 'a'])
+            l_tuples.extend ([3, 'b'])
+
+            create l_enum.make (l_tuples)
+            l_result := l_enum.uniq_by (agent (t: TUPLE [x: INTEGER; y: CHARACTER]): CHARACTER
+                do
+                    Result := t.y
+                end).to_array
+
+            	-- Should keep {1, 'a'} and {3, 'b'}, dropping {2, 'a'}
+            assert ("correct number of unique elements", l_result.count = 2)
+            assert ("first element kept", l_result[1].x = 1 and l_result[1].y = 'a')
+            assert ("last element kept", l_result[2].x = 3 and l_result[2].y = 'b')
+        end
+
+	test_uniq_by_complex
+			-- Test removing duplicates based on function result
+		local
+			l_enum: ENUM [TUPLE [label: STRING; data: TUPLE [name: STRING; i: INTEGER]]]
+			l_tuples: ARRAYED_LIST [TUPLE [label: STRING; data: TUPLE [name: STRING; i: INTEGER]]]
+			l_result: ARRAY [TUPLE [label: STRING; data: TUPLE [name: STRING; i: INTEGER]]]
+		do
+			-- Test with nested tuples, keeping first occurrence of each count value
+			create l_tuples.make (3)
+			l_tuples.extend (["a", ["tea", 2]])      -- a: {:tea, 2}
+			l_tuples.extend (["b", ["tea", 2]])      -- b: {:tea, 2}
+			l_tuples.extend (["c", ["coffee", 1]])   -- c: {:coffee, 1}
+
+			create l_enum.make (l_tuples)
+			l_result := l_enum.uniq_by (agent (t: TUPLE [label: STRING; data: TUPLE [name: STRING; i: INTEGER]]):  TUPLE [name: STRING; i: INTEGER]
+				do
+					Result := t.data
+				end).to_array
+
+				-- Should keep [a: {:tea, 2}, c: {:coffee, 1}], dropping b: {:tea, 2}
+			assert ("correct number of unique elements", l_result.count = 2)
+			assert ("first element kept",
+				l_result[1].label ~ "a" and
+				l_result[1].data.name ~ "tea" and
+				l_result[1].data.i = 2)
+			assert ("last element kept",
+				l_result[2].label ~ "c" and
+				l_result[2].data.name ~ "coffee" and
+				l_result[2].data.i = 1)
+		end
+
+
+    test_map_hash_values
+            -- Test mapping over hash table values and transforming them
+        local
+            l_enum: ENUM [TUPLE [key: READABLE_STRING_GENERAL; value: STRING]]
+            l_hash: STRING_TABLE [STRING]
+            l_result: ARRAY [STRING_GENERAL]
+        do
+            	-- Create and populate hash table
+            create l_hash.make (2)
+            l_hash.put ("willy", "name")
+            l_hash.put ("wonka", "last_name")
+
+            	-- Create enum from converted hash table
+            create l_enum.make (hash_to_list (l_hash))
+
+            	-- Map over the values and convert to uppercase
+            l_result := l_enum.map_to_string (agent (t: TUPLE [key: READABLE_STRING_GENERAL; value: STRING_8]): STRING_8
+                do
+                    Result := t.value.as_upper
+                end).to_array
+
+            	-- Verify results (note: hash order is not guaranteed)
+            assert ("correct number of elements", l_result.count = 2)
+            assert ("contains WILLY", across l_result as s some s ~ "WILLY" end)
+            assert ("contains WONKA", across l_result as s some s ~ "WONKA" end)
+        end
+
+
+      test_map_hash_values_with_factory
+            -- Test mapping over hash table values and transforming them
+        local
+            l_enum: ENUM [TUPLE [key: READABLE_STRING_GENERAL; value: STRING]]
+            l_hash: STRING_TABLE [STRING]
+            l_result: ARRAY [STRING_GENERAL]
+        do
+            	-- Create and populate hash table
+            create l_hash.make (2)
+            l_hash.put ("willy", "name")
+            l_hash.put ("wonka", "last_name")
+
+            	-- Create enum from converted hash table
+            l_enum := {ENUM_TABLE_FACTORY[STRING]}.from_string_table(l_hash)
+
+            	-- Map over the values and convert to uppercase
+            l_result := l_enum.map_to_string (agent (t: TUPLE [key: READABLE_STRING_GENERAL; value: STRING_8]): STRING_8
+                do
+                    Result := t.value.as_upper
+                end).to_array
+
+            	-- Verify results (note: hash order is not guaranteed)
+            assert ("correct number of elements", l_result.count = 2)
+            assert ("contains WILLY", across l_result as s some s ~ "WILLY" end)
+            assert ("contains WONKA", across l_result as s some s ~ "WONKA" end)
+        end
+
+
+
+feature {NONE} -- Implementation
+
+    hash_to_list (a_hash: STRING_TABLE [STRING]): ARRAYED_LIST [TUPLE [key: READABLE_STRING_GENERAL; value: STRING]]
+            -- Convert hash table to list of tuples
+        do
+            create Result.make (a_hash.count)
+            from
+            	a_hash.start
+            until
+            	a_hash.after
+            loop
+                Result.extend (a_hash.key_for_iteration, a_hash.item_for_iteration)
+                a_hash.forth
+            end
+        end
+
+
 
 end
 

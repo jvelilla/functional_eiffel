@@ -34,6 +34,7 @@
 	</target>
 	<target name="collection" extends="abstract">
 		<root class="APPLICATION" feature="make"/>
+		<option is_obsolete_iteration="false"/>
 		<setting name="total_order_on_reals" value="true"/>
 		<library name="testing" location="$ISE_LIBRARY\library\testing\testing.ecf"/>
 		<cluster name="collection" location=".\collection\" recursive="true"/>
